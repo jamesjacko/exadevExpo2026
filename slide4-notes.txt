@@ -1,0 +1,22 @@
+SLIDE 4 – AI in Practice: Speaker Notes
+========================================
+
+AI as a Collaborator
+---------------------
+Tools like Claude can accelerate your work significantly — helping you explore ideas,
+write boilerplate, and debug faster. We use it daily.
+
+Core CS Principles Still Apply
+--------------------------------
+Algorithms, data structures, systems thinking, and good architecture don't go away.
+AI output is only as good as your ability to evaluate it.
+
+The Danger of Autopilot
+-------------------------
+AI can confidently produce incorrect, insecure, or poorly designed code.
+Without a solid foundation, you won't know what you're shipping.
+
+Your Degree Still Matters
+--------------------------
+Understanding the fundamentals is what lets you direct AI effectively,
+catch its mistakes, and build things that actually hold up.

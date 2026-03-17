@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExaDev – Founding Engineers on Demand</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-dark: #0a0a0f;
+    --bg-card: #13131a;
+    --accent: #f5c518;
+    --accent-light: #fdd835;
+    --text: #f0f0f5;
+    --text-muted: #8888a0;
+    --gradient: linear-gradient(135deg, #f5c518, #ffab00);
+    --gradient-warm: linear-gradient(135deg, #f5c518, #ff8f00);
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* slides are transparent so orbs show through */
+  .slide { background: transparent; }
+
+  /* ── Deck wrapper ── */
+  .deck {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+    background: transparent;
+  }
+
+  /* ── Slide layout ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 8vw;
+    overflow: hidden;
+    /* default: hidden to the right */
+    transform: translateX(100%);
+    transition: transform .55s cubic-bezier(.77, 0, .18, 1);
+    will-change: transform;
+  }
+
+  .slide.active {
+    transform: translateX(0);
+  }
+
+  .slide.prev {
+    transform: translateX(-100%);
+  }
+
+
+  /* ── Slide counter ── */
+  .slide-num {
+    position: absolute;
+    top: 2rem;
+    right: 3rem;
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .15em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  /* ── Typography ── */
+  .kicker {
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: .75rem;
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -.03em;
+    margin-bottom: 1.25rem;
+  }
+
+  h2 {
+    font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    margin-bottom: 1rem;
+  }
+
+  .subtitle {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-width: 42rem;
+  }
+
+  .highlight {
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* ── Terminal block (slide 1) ── */
+  .terminal {
+    margin-top: 2.5rem;
+    background: #0d0d14;
+    border: 1px solid #222233;
+    border-radius: .75rem;
+    padding: 1.5rem 1.75rem;
+    max-width: 36rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: .82rem;
+    line-height: 1.8;
+    color: #70e0a0;
+  }
+  .terminal .prompt { color: var(--accent-light); }
+  .terminal .check { color: #66bb6a; }
+  .terminal .info { color: #fdcb6e; }
+
+  /* ── Grids ── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.75rem;
+    margin-top: 2.5rem;
+  }
+
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid #1e1e2e;
+    border-radius: .85rem;
+    padding: 1.75rem;
+    transition: border-color .25s, transform .25s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  .card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: .5rem;
+  }
+
+  .card p {
+    font-size: .88rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .card .icon {
+    font-size: 1.6rem;
+    margin-bottom: .75rem;
+    display: block;
+  }
+
+  /* ── Case study cards ── */
+  .case-card {
+    background: var(--bg-card);
+    border: 1px solid #1e1e2e;
+    border-radius: .85rem;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .case-card .tag {
+    display: inline-block;
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: .25rem .65rem;
+    border-radius: 999px;
+    background: rgba(245, 197, 24, .15);
+    color: var(--accent-light);
+    width: fit-content;
+  }
+
+  .case-card h3 { font-size: 1.2rem; font-weight: 700; margin-top: .35rem; }
+  .case-card p { font-size: .85rem; color: var(--text-muted); line-height: 1.55; }
+
+  /* ── Stats strip ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 2.4rem;
+    font-weight: 800;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stat-label {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin-top: .25rem;
+  }
+
+  /* ── Testimonial ── */
+  .quote-block {
+    background: var(--bg-card);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 .75rem .75rem 0;
+    padding: 1.75rem 2rem;
+    margin-top: 2rem;
+    max-width: 44rem;
+  }
+
+  .quote-block p {
+    font-size: 1rem;
+    line-height: 1.65;
+    font-style: italic;
+    color: var(--text);
+  }
+
+  .quote-block .attribution {
+    margin-top: .75rem;
+    font-style: normal;
+    font-size: .82rem;
+    color: var(--text-muted);
+  }
+
+  /* ── CTA slide ── */
+  .cta-slide {
+    text-align: center;
+    align-items: center;
+  }
+
+  .cta-slide .subtitle { margin: 0 auto; }
+
+  .btn {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: .85rem 2.4rem;
+    border-radius: 999px;
+    font-size: .95rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: #fff;
+    background: var(--gradient);
+    transition: opacity .2s;
+  }
+  .btn:hover { opacity: .85; }
+
+  /* ── Logo strip ── */
+  .logos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 2rem;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: .85rem;
+    font-weight: 500;
+  }
+
+  .logos span {
+    padding: .5rem 1.25rem;
+    border: 1px solid #1e1e2e;
+    border-radius: .5rem;
+    background: var(--bg-card);
+  }
+
+  /* ── Services list ── */
+  .services-list {
+    list-style: none;
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .services-list li {
+    padding: 1rem 1.25rem;
+    background: var(--bg-card);
+    border: 1px solid #1e1e2e;
+    border-radius: .6rem;
+    font-weight: 500;
+    font-size: .92rem;
+  }
+
+  .services-list li span {
+    margin-right: .5rem;
+  }
+
+  /* ── Parallax background ── */
+  .bg-parallax {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* ── Fixed top glow ── */
+  .bg-top-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(245, 197, 24, .10), transparent 70%);
+    pointer-events: none;
+    z-index: 10;
+  }
+
+
+  /* ── Parallax panels ── */
+  .bg-panel {
+    position: absolute;
+    top: -20%;
+    height: 140%;
+    will-change: transform;
+    transition: transform .55s ease-out;
+    pointer-events: none;
+  }
+
+  .bg-panel-1 {
+    width: 240vw;
+    left: -50vw;
+    background: linear-gradient(180deg, rgba(245, 197, 24, .008) 0%, rgba(255, 140, 0, .003) 100%);
+    transform: skewX(28deg);
+    z-index: 1;
+  }
+
+  .bg-panel-2 {
+    width: 140vw;
+    left: 15vw;
+    background: linear-gradient(180deg, rgba(255, 171, 0, .01) 0%, rgba(245, 197, 24, .004) 100%);
+    transform: skewX(28deg);
+    z-index: 2;
+  }
+
+  .bg-panel-3 {
+    width: 70vw;
+    left: 55vw;
+    background: linear-gradient(180deg, rgba(255, 220, 80, .012) 0%, rgba(255, 171, 0, .005) 100%);
+    transform: skewX(28deg);
+    z-index: 3;
+  }
+
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--gradient);
+    z-index: 200;
+    transition: width .55s ease-out;
+    width: 0%;
+  }
+
+  /* ── Hero logo ── */
+  .hero-logo {
+    margin-bottom: 2rem;
+  }
+
+  .hero-logo img {
+    height: 160px;
+    width: auto;
+    filter: drop-shadow(0 0 32px rgba(245, 197, 24, .3));
+  }
+
+  /* ── Pill tags (slide 1) ── */
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 2rem;
+  }
+
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .5rem 1.1rem;
+    border-radius: 999px;
+    background: var(--bg-card);
+    border: 1px solid rgba(245, 197, 24, .25);
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  .pill i {
+    color: var(--accent);
+    font-size: .9rem;
+  }
+
+
+
+  /* ── Timeline (slides 2 & 3) ── */
+  .timeline {
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 48rem;
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: .5rem;
+    bottom: .5rem;
+    width: 2px;
+    background: linear-gradient(180deg, var(--accent), transparent);
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 1.75rem;
+    align-items: flex-start;
+    padding: .85rem 0;
+    position: relative;
+  }
+
+  .timeline-dot {
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 50%;
+    background: var(--bg-dark);
+    border: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--accent);
+    font-size: .85rem;
+    z-index: 1;
+  }
+
+  .timeline-content {
+    padding-bottom: .5rem;
+  }
+
+  .timeline-year {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .2rem;
+  }
+
+  .timeline-content h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: .25rem;
+  }
+
+  .timeline-content p {
+    font-size: .88rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+
+  /* ── Rebrand figure (slide 2) ── */
+  .rebrand-figure {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 2.5rem;
+  }
+
+  .rebrand-figure .logo-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .6rem;
+  }
+
+  .rebrand-figure .logo-box img {
+    height: 64px;
+    width: auto;
+  }
+
+  .rebrand-figure .logo-box span {
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .rebrand-figure .rebrand-arrow {
+    font-size: 2rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* ── Stat cards (slide 3) ── */
+  .stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid #1e1e2e;
+    border-radius: .85rem;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .stat-card .stat-num {
+    font-size: 2.6rem;
+    font-weight: 800;
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .stat-card .stat-label {
+    font-size: .8rem;
+    color: var(--text-muted);
+    margin-top: .35rem;
+  }
+
+  /* ── Bullet list (slide 4) ── */
+  .bullet-list {
+    list-style: none;
+    margin-top: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 52rem;
+  }
+
+  .bullet-list li {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .bullet-list li i {
+    font-size: 1.5rem;
+    color: var(--accent);
+    width: 2rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* ── Arrow controls ── */
+  .arrow-controls {
+    position: fixed;
+    bottom: 2rem;
+    right: 3rem;
+    display: flex;
+    gap: .75rem;
+    z-index: 200;
+  }
+
+  .arrow-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid rgba(245, 197, 24, .3);
+    background: var(--bg-card);
+    color: var(--accent);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s, border-color .2s;
+  }
+
+  .arrow-btn:hover {
+    background: rgba(245, 197, 24, .15);
+    border-color: var(--accent);
+  }
+
+  .arrow-btn:disabled {
+    opacity: .25;
+    cursor: default;
+  }
+
+  /* ── Timeline progressive reveal ── */
+  .timeline-item {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity .4s ease-out, transform .4s ease-out;
+  }
+
+  .timeline-item.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    .slide { padding: 3rem 1.5rem; }
+    .hero-logo img { height: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progress-bar"></div>
+
+<!-- Arrow controls -->
+<div class="arrow-controls">
+  <button class="arrow-btn" id="btn-prev" title="Previous"><i class="fa-solid fa-arrow-left"></i></button>
+  <button class="arrow-btn" id="btn-next" title="Next"><i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<!-- Parallax background -->
+<div class="bg-parallax" id="bg-parallax">
+  <div class="bg-top-glow"></div>
+  <div class="bg-panel bg-panel-1" id="bg-p1"></div>
+  <div class="bg-panel bg-panel-2" id="bg-p2"></div>
+  <div class="bg-panel bg-panel-3" id="bg-p3"></div>
+</div>
+
+<div class="deck">
+<!-- ====== SLIDE 1 – Title ====== -->
+<section class="slide" id="slide-1">
+  <span class="slide-num">00 / 04</span>
+  <div class="hero-logo">
+    <img src="exadev-logo.svg" alt="ExaDev" onerror="this.style.display='none'">
+  </div>
+  <h1>Founding Engineers<br><span class="highlight">On Demand</span></h1>
+  <p class="subtitle">
+    A software consultancy of senior engineers and ex-founders — many of them Bangor alumni.
+    We work alongside teams on AI, infrastructure, and full-stack product development.
+  </p>
+  <div class="pill-row">
+    <div class="pill"><i class="fa-solid fa-robot"></i> AI &amp; Data Science</div>
+    <div class="pill"><i class="fa-solid fa-cloud"></i> Infrastructure</div>
+    <div class="pill"><i class="fa-solid fa-code"></i> Software Engineering</div>
+    <div class="pill"><i class="fa-solid fa-compass-drafting"></i> Tech Strategy</div>
+    <div class="pill"><i class="fa-solid fa-building-columns"></i> 9 Bangor Alumni</div>
+    <div class="pill"><i class="fa-solid fa-calendar"></i> Founded 2014</div>
+  </div>
+</section>
+
+
+
+<!-- ====== SLIDE 2 – How It Started ====== -->
+<section class="slide" id="slide-2">
+  <span class="slide-num">01 / 04</span>
+  <div class="kicker">Our Story</div>
+  <h2>How It Started</h2>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot"><i class="fa-solid fa-flag"></i></div>
+      <div class="timeline-content">
+        <div class="timeline-year">2014</div>
+        <h3>Founded at Bangor</h3>
+        <p><span class="highlight">Francis Williams</span> and <span class="highlight">William Faithfull</span> started the company during their time at Bangor University, originally trading as <strong>Sourcepulp</strong>.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"><i class="fa-solid fa-user-plus"></i></div>
+      <div class="timeline-content">
+        <div class="timeline-year">Early days</div>
+        <h3>The Team Grows</h3>
+        <p><span class="highlight">Joseph Mearman</span>, <span class="highlight">Ben Dickinson</span>, and <span class="highlight">James Jackson</span> (on and off) joined soon after — all with roots in Bangor.</p>
+        <div class="rebrand-figure">
+          <div class="logo-box">
+            <img src="sourcepulp-logo.png" alt="Sourcepulp">
+          </div>
+          <div class="rebrand-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="logo-box">
+            <img src="exadev-logo.svg" alt="ExaDev">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot"><i class="fa-solid fa-arrow-up-right-dots"></i></div>
+      <div class="timeline-content">
+        <div class="timeline-year">Onwards</div>
+        <h3>Rebranded as ExaDev</h3>
+        <p>The company evolved in scope and ambition, taking on larger clients and more complex engagements under the ExaDev name. <span class="highlight">Sean Leach</span> joined after lurking for a while.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ====== SLIDE 3 – How It's Going ====== -->
+<section class="slide" id="slide-3">
+  <span class="slide-num">02 / 04</span>
+  <div class="kicker">Our Story</div>
+  <h2>How It's Going</h2>
+
+  <div class="stat-cards">
+    <div class="stat-card">
+      <div class="stat-num" data-target="16" data-suffix="">0</div>
+      <div class="stat-label">People in the team</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" data-target="9" data-suffix="">0</div>
+      <div class="stat-label">Bangor alumni</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" data-target="10" data-suffix="+">0</div>
+      <div class="stat-label">Years in business</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" data-target="6" data-suffix="+">0</div>
+      <div class="stat-label">Countries</div>
+    </div>
+  </div>
+
+  <div class="logos" style="margin-top:2.5rem;">
+    <span>Google</span>
+    <span>Sky</span>
+    <span>AdPeak</span>
+    <span>ClearStake</span>
+    <span>Equal Experts</span>
+  </div>
+</section>
+
+
+
+<!-- ====== SLIDE 4 – AI & CS Principles ====== -->
+<section class="slide" id="slide-4">
+  <span class="slide-num">03 / 04</span>
+  <div class="kicker">AI in Practice</div>
+  <h2>AI Tools &amp; <span class="highlight">Why CS Still Matters</span></h2>
+  <ul class="bullet-list">
+    <li><i class="fa-solid fa-robot"></i> We use AI tools like Claude daily — for code review, research, and drafting</li>
+    <li><i class="fa-solid fa-microchip"></i> Core CS principles still apply — algorithms, architecture, and systems thinking don't go away</li>
+    <li><i class="fa-solid fa-triangle-exclamation"></i> AI can confidently produce wrong, insecure, or poorly designed code</li>
+    <li><i class="fa-solid fa-graduation-cap"></i> Your fundamentals are what let you direct AI effectively and catch its mistakes</li>
+  </ul>
+</section>
+
+
+
+<!-- ====== SLIDE 5 – Questions ====== -->
+<section class="slide cta-slide" id="slide-5">
+  <span class="slide-num">04 / 04</span>
+  <h1>Any <span class="highlight">Questions?</span></h1>
+  <p class="subtitle">We're happy to chat about ExaDev, working in tech, or anything else.</p>
+  <div class="logos" style="margin-top:2.5rem;">
+    <span>exadev.io</span>
+  </div>
+</section>
+
+</div><!-- end .deck -->
+
+<script>
+  const slides      = Array.from(document.querySelectorAll('.slide'));
+  const progressBar = document.getElementById('progress-bar');
+  const btnPrev     = document.getElementById('btn-prev');
+  const btnNext     = document.getElementById('btn-next');
+  const panel1   = document.getElementById('bg-p1');
+  const panel2   = document.getElementById('bg-p2');
+  const panel3   = document.getElementById('bg-p3');
+  let current = 0;
+  let subStep = 0;
+  const timelineItems = Array.from(document.querySelectorAll('#slide-2 .timeline-item'));
+  const TIMELINE_SLIDE = 1; // slide index for "How It Started"
+
+  function setTimelineStep(step) {
+    timelineItems.forEach((item, i) => {
+      item.classList.toggle('revealed', i < step);
+    });
+  }
+
+  function animateCounters() {
+    document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+      const target = +el.dataset.target;
+      const suffix = el.dataset.suffix || '';
+      const duration = 1000;
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        el.textContent = Math.round(ease * target) + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  function goTo(index, fromRight = false) {
+    current = Math.max(0, Math.min(slides.length - 1, index));
+
+    slides.forEach((s, i) => {
+      s.classList.remove('active', 'prev');
+      if (i === current) s.classList.add('active');
+      else if (i < current) s.classList.add('prev');
+    });
+
+    // Each orb moves at a different speed/direction for true parallax depth
+    const i = current;
+    // Back panel moves slowest, front panel fastest — skew is preserved via translateX only
+    panel1.style.transform = `skewX(28deg) translateX(${i * -4}vw)`;
+    panel2.style.transform = `skewX(28deg) translateX(${i * -10}vw)`;
+    panel3.style.transform = `skewX(28deg) translateX(${i * -20}vw)`;
+
+    progressBar.style.width = `${(current / (slides.length - 1)) * 100}%`;
+    if (current === 2) setTimeout(animateCounters, 550);
+    if (current === TIMELINE_SLIDE) {
+      // arriving from right = all revealed, from left = first only
+      subStep = fromRight ? timelineItems.length : 1;
+      setTimelineStep(subStep);
+    }
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === slides.length - 1;
+  }
+
+  function next() {
+    if (current === TIMELINE_SLIDE && subStep < timelineItems.length) {
+      subStep++;
+      setTimelineStep(subStep);
+      btnPrev.disabled = false;
+      btnNext.disabled = false;
+    } else {
+      goTo(current + 1, false);
+    }
+  }
+
+  function prev() {
+    if (current === TIMELINE_SLIDE && subStep > 1) {
+      subStep--;
+      setTimelineStep(subStep);
+      btnPrev.disabled = false;
+      btnNext.disabled = false;
+    } else {
+      goTo(current - 1, true);
+    }
+  }
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next();
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   prev();
+  });
+
+  // Dot clicks
+
+  // Button clicks
+  btnNext.addEventListener('click', next);
+  btnPrev.addEventListener('click', prev);
+
+  // Init
+  goTo(0, 'next');
+</script>
+</body>
+</html>
